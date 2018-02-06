@@ -1,6 +1,4 @@
-/*
- * Create a list that holds all of your cards
- */
+//list of variables
  var cards=["diamond","bicycle","bomb","anchor","paper-plane-o","cube","leaf","bolt","diamond","bicycle","bomb","anchor","paper-plane-o","cube","leaf","bolt"];
  var cardsOpened=[];
  var currentTime;
@@ -10,14 +8,16 @@
  var matches;
  var starRatings=$(".fa-star");
  var timer=$(".timer");
+ var _moves=$(".moves");
+ var three_star_rating=12;
+ var two_star_rating=18;
+ var one_star_rating=24;
+ var restartbutton= $(".fa-repeat");
+ var totalcards=cards.length/2;
+ var message=$(".message");
+ var deck=$(".deck");
 
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
-// Shuffle function from http://stackoverflow.com/a/2450976
+//function to shuffle cards
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -31,53 +31,156 @@ function shuffle(array) {
 
     return array;
 }
-function startGame(){
-shuffle(cards);
-moves=0;
-matches=0;
-retinitalizemove.text("0");
-starRatings.addClass(".fa-star").removeClass(".fa-star-o");
-$('.deck').empty();
-for(var i=0;i<cards.length;i++){
-  $('.deck').append($('<li class="card"><i class="fa fa-'+cards[i]+'"></i></li>"'));
-}
-startTimer();
 
-$(".card").addClass("close");
-$(".card").on('click',function(){
-  $(this).toggleClass("close").toggleClass("open show");
-  $(".moves").empty();
-  moves++;
-  $(".moves").append(moves);
-  var card=$(this).html().toString();
-  var cardnew;
-  for(var i=0;i<cards.length;i++){
-    if(card.indexOf(cards[i])!==-1){
-      cardnew=cards[i];
+//starting the game
+function startGame(){
+        shuffle(cards);
+        moves=0;
+        matches=0;
+        message.empty();
+        retinitalizemove.text("0");
+        starRatings.removeClass("fa-star-o").addClass("fa-star");
+        deck.empty();
+        for(var i=0;i<cards.length;i++){
+                 deck.append($('<li class="card"><i class="fa fa-'+cards[i]+'"></i></li>"'));
+            }
+        cardSensor();
+        stopTimer(currentTime);
+        seconds=0;
+        timer.text(`${seconds}`);
+        startTimer();
+}
+
+//staring the timer
+function startTimer(time){
+        currentTime = setInterval(function(){
+        timer.text(`${seconds}`);
+        seconds=seconds+1;
+        },1000);
+}
+
+//restarting the game
+restartbutton.on('click', function () {
+        openModal();
+        message.append("<h1> Are you sure ? </h1> <h1> Your progress will be lost. </h1>");
+  });
+
+//stopping the timer
+function stopTimer(timer){
+        if(timer){
+             clearInterval(timer);
+        }
+}
+
+//function to rate stars on the basis of moves
+function setRating(moves){
+        var stars=3;
+        if(moves===three_star_rating){
+                starRatings.eq(2).removeClass("fa-star").addClass("fa-star-o");
+                stars=2;
+        }
+        if(moves===two_star_rating){
+                starRatings.eq(1).removeClass("fa-star").addClass("fa-star-o");
+                stars=1;
+         }
+         if(moves===one_star_rating){
+                starRatings.eq(0).removeClass("fa-star").addClass("fa-star-o");
+                stars=0;
+         }
+    return stars;
+}
+
+//card action taking place here
+function cardSensor(){
+         $(".card").addClass("close");
+         $(".card").on('click',function(){
+         if($(this).hasClass("match")===true||$(this).hasClass("show")===true){
+                return true;
+         }
+         $(this).removeClass("close").addClass("open show");
+         var card=$(this).html().toString();
+         var cardnew;
+         for(var i=0;i<cards.length;i++){
+              if(card.indexOf(cards[i])!==-1){
+                    cardnew=cards[i];
+              }
+         }
+         cardsOpened.push(cardnew);
+         if(cardsOpened.length>1){
+              if(cardnew===cardsOpened[0]){
+              deck.find(".open").removeClass("open show").addClass("match");
+                     matches++;
+         }
+         else {
+              deck.find(".open").addClass("notmatch");
+              setTimeout(function(){
+                    deck.find(".open").removeClass("open show notmatch").addClass("close");
+              },600);
+         }
+         cardsOpened=[];
+         _moves.empty();
+         moves++;
+         _moves.append(moves);
+         setRating(moves);
+         }
+    if(totalcards===matches){
+         stopTimer(currentTime);
+         setRating(moves);
+         var result=setRating(moves);
+         setTimeout(function(){
+         endGame(moves,result);
+         },600);
     }
-  }
-  cardsOpened.push(cardnew);
-  if(cardsOpened.length>1){
-       if(cardnew==cardsOpened[0]){
-         $(this).toggleClass("open show").toggleClass("match");
-       }
-       else {
-         $(this).toggleClass("match").toggleClass("notmatch");
-       }
-  }
-});
+  });
 }
-function startTimer(){
- currentTime = setInterval(function(){
-   timer.text(`${seconds}`);
-   seconds=seconds+1;
- },1000);
+
+//winning message displayed
+function endGame(moves, score) {
+     openModal();
+     message.append("<h1> Congratulations! </h1> <h4> You have won with "+moves+" moves and "+score+" stars in "+(seconds-1)+" seconds.</h4> ");
 }
-$("header").on("click",function(){
-  clearInterval(currentTime);
-});
+
+//Get Modal element
+var modal = document.getElementById("simpleModal");
+//Get open modal button
+var modalBtn= document.getElementById("modalBtn");
+//Get close modal button
+var closeBtn= document.getElementById("closeBtn");
+//Get restartgame button
+var restartBtn= document.getElementById("restartBtn");
+//listen for click
+modalBtn.addEventListener("click",openModal);
+//listen for click for close
+closeBtn.addEventListener("click",closeModal);
+//listen for outside click
+window.addEventListener("click",outsideClick);
+//listen for restarting game
+restartBtn.addEventListener("click",restartGame);
+//Function to open modalBtn
+function openModal(){
+  modal.style.display = 'block';
+}
+//Function to open modalBtn
+function closeModal(){
+  modal.style.display = 'none';
+  message.empty();
+}
+//Function for outside click
+function outsideClick(e){
+  if(e.target == modal){
+        modal.style.display = 'none';
+  }
+}
+//function for restart button functionality
+function restartGame(){
+  startGame();
+  modal.style.display= 'none';
+}
 
 startGame();
+
+
+
 /*
  * set up the event listener for a card. If a card is clicked:
  *  - display the card's symbol (put this functionality in another function that you call from this one)

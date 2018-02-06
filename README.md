@@ -13,8 +13,19 @@ To get started, open `js/app.js` and start building out the app's functionality
 
 For specific, detailed instructions, look at the project instructions in the [Udacity Classroom](https://classroom.udacity.com/me).
 
+
 ## Contributing
 
 This repository is the starter code for _all_ Udacity students. Therefore, we most likely will not accept pull requests.
 
 For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Working
+
+This is a memory game. It consists of 16 pairs of cards where each pair has identical shapes on its hidden side.
+
+You have to match each shape with its pair.
+
+You win when you match all the pairs.
+
+Each two cards you unravel, will be considered as a move. Do it in as less moves as possible.
