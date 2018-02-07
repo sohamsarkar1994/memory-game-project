@@ -9,13 +9,13 @@
  var starRatings=$(".fa-star");
  var timer=$(".timer");
  var _moves=$(".moves");
- var three_star_rating=12;
- var two_star_rating=18;
+ var two_star_rating=20;
  var one_star_rating=24;
  var restartbutton= $(".fa-repeat");
  var totalcards=cards.length/2;
  var message=$(".message");
  var deck=$(".deck");
+ var clicks=0;
 
 //function to shuffle cards
 function shuffle(array) {
@@ -38,6 +38,7 @@ function startGame(){
         moves=0;
         matches=0;
         message.empty();
+        cardsOpened=[];
         retinitalizemove.text("0");
         starRatings.removeClass("fa-star-o").addClass("fa-star");
         deck.empty();
@@ -48,7 +49,6 @@ function startGame(){
         stopTimer(currentTime);
         seconds=0;
         timer.text(`${seconds}`);
-        startTimer();
 }
 
 //staring the timer
@@ -56,13 +56,14 @@ function startTimer(time){
         currentTime = setInterval(function(){
         timer.text(`${seconds}`);
         seconds=seconds+1;
-        },1000);
+      },1000);
 }
 
 //restarting the game
 restartbutton.on('click', function () {
-        openModal();
+        clicks=0;
         message.append("<h1> Are you sure ? </h1> <h1> Your progress will be lost. </h1>");
+        openModal();
   });
 
 //stopping the timer
@@ -74,18 +75,23 @@ function stopTimer(timer){
 
 //function to rate stars on the basis of moves
 function setRating(moves){
-        var stars=3;
-        if(moves===three_star_rating){
+        var stars;
+        if(moves<two_star_rating){
+          stars=3;
+        }
+        if(moves===two_star_rating){
                 starRatings.eq(2).removeClass("fa-star").addClass("fa-star-o");
                 stars=2;
         }
-        if(moves===two_star_rating){
+        if(moves>two_star_rating&&moves<one_star_rating){
+          stars=2;
+        }
+        if(moves===one_star_rating){
                 starRatings.eq(1).removeClass("fa-star").addClass("fa-star-o");
                 stars=1;
          }
-         if(moves===one_star_rating){
-                starRatings.eq(0).removeClass("fa-star").addClass("fa-star-o");
-                stars=0;
+         if(moves>one_star_rating){
+           stars=1;
          }
     return stars;
 }
@@ -93,7 +99,11 @@ function setRating(moves){
 //card action taking place here
 function cardSensor(){
          $(".card").addClass("close");
-         $(".card").on('click',function(){
+         $(".card").on('click',function(e){
+           clicks+=1;
+           if(clicks===1){
+             startTimer();
+           }
          if($(this).hasClass("match")===true||$(this).hasClass("show")===true){
                 return true;
          }
@@ -121,12 +131,12 @@ function cardSensor(){
          _moves.empty();
          moves++;
          _moves.append(moves);
-         setRating(moves);
+         var result=setRating(moves);
          }
     if(totalcards===matches){
          stopTimer(currentTime);
          setRating(moves);
-         var result=setRating(moves);
+         result=setRating(moves);
          setTimeout(function(){
          endGame(moves,result);
          },600);
@@ -137,7 +147,13 @@ function cardSensor(){
 //winning message displayed
 function endGame(moves, score) {
      openModal();
-     message.append("<h1> Congratulations! </h1> <h4> You have won with "+moves+" moves and "+score+" stars in "+(seconds-1)+" seconds.</h4> ");
+     if(score===1)
+     {
+     message.append("<h1> Congratulations! You are the winner!</h1> <h4> You have won with "+moves+" moves and "+score+" star in "+(seconds-1)+" seconds.</h4> ");
+     }
+     else{
+        message.append("<h1> Congratulations! </h1> <h4> You have won with "+moves+" moves and "+score+" stars in "+(seconds-1)+" seconds.</h4> ");
+     }
 }
 
 //Get Modal element
@@ -175,6 +191,7 @@ function outsideClick(e){
 function restartGame(){
   startGame();
   modal.style.display= 'none';
+  message.empty();
 }
 
 startGame();
