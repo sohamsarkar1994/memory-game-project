@@ -9,7 +9,7 @@
  var starRatings=$(".fa-star");
  var timer=$(".timer");
  var _moves=$(".moves");
- var two_star_rating=20;
+ var two_star_rating=16;
  var one_star_rating=24;
  var restartbutton= $(".fa-repeat");
  var totalcards=cards.length/2;
@@ -186,7 +186,6 @@ function outsideClick(e){
   if(e.target == modal){
         modal.style.display = 'none';
         message.empty();
-
   }
 }
 //function for restart button functionality
