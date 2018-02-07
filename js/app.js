@@ -185,6 +185,8 @@ function closeModal(){
 function outsideClick(e){
   if(e.target == modal){
         modal.style.display = 'none';
+        message.empty();
+
   }
 }
 //function for restart button functionality
